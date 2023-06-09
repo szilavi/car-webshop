@@ -1,0 +1,189 @@
+<div class="text-white rounded mx-2">
+  <h2 class="text-center">Search in columns</h2>
+  <div class="col-6 mx-auto form-group">
+    <form class="row g-3">
+      <div class="col-lg-6">
+        <select
+          name="searchBy"
+          class="form-select col-4"
+          aria-label="select"
+          [(ngModel)]="searchBy"
+        >
+          <option *ngFor="let col of columns" [value]="col.key" selected>
+            {{ col.title }}
+          </option>
+        </select>
+      </div>
+      <div class="col-lg-6">
+        <input
+          (input)="onSearch($event)"
+          class="form-control col-lg-4"
+          type="text"
+          placeholder="Search..."
+          aria-label="search input"
+        />
+      </div>
+    </form>
+  </div>
+</div>
+
+<a
+  [routerLink]="['/edit/customer/']"
+  href="javascript:;"
+  class="btn bg-gradient-dark text-sm col-12 mt-3"
+>
+  New customer
+</a>
+<div class="container-fluid py-1">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div
+            class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3"
+          >
+            <h6 class="text-white text-capitalize ps-3">Customer table</h6>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-items-center mb-0">
+            <thead>
+              <tr
+                cdkDropList
+                cdkDropListOrientation="horizontal"
+                class="collist"
+                (cdkDropListDropped)="drop($event)"
+              >
+                <th
+                  *ngFor="let col of columns"
+                  cdkDrag
+                  (click)="setSort(col.key)"
+                  class="colBox text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-5 user-select-none"
+                >
+                  {{ col.title }}
+                  <i
+                    *ngIf="col.key === sortKey && sortDirection == 1"
+                    class="fa fa-long-arrow-up"
+                  ></i>
+                  <i
+                    *ngIf="col.key === sortKey && sortDirection == -1"
+                    class="fa fa-long-arrow-down"
+                  ></i>
+                </th>
+                <th></th>
+                <th></th>
+                <th class="text-secondary opacity-7"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let customer of customerList
+                    | filter : searchPhrase : searchBy
+                    | sort : sortKey : sortDirection
+                    | paginate : { itemsPerPage: 10, currentPage: page }
+                "
+              >
+                <td
+                  *ngFor="let col of columns"
+                  class="align-middle text-sm ps-5"
+                >
+                  <p
+                    class="text-xs font-weight-bold mb-0"
+                    [ngSwitch]="customer[col.key]"
+                  >
+                    <span *ngSwitchCase="customer.id">
+                      <span *ngIf="col.key === 'id'">{{ customer.id }}</span>
+                    </span>
+                    <span *ngSwitchCase="customer.lastName">
+                      <span class="mb-0 text-sm"
+                        >{{ customer.firstName }} {{ customer.lastName }}</span
+                      ><br />
+                      <span class="text-xs text-secondary mb-0">
+                        {{ customer.email }}</span
+                      >
+                    </span>
+                    <span *ngSwitchCase="customer.address">
+                      <span class="mb-0 text-sm">
+                        {{ customer.address.country }}</span
+                      ><br />
+                      <!-- Viktor miatt nem jelenítjük meg a Nodes-t, mert semmi értelmét nem látja a táblázatban való megjelenítésnek :) -->
+                      <span class="text-xs text-secondary mb-0"
+                        >{{ customer.address.zip }},
+                        {{ customer.address.city }},
+                        {{ customer.address.street }}</span
+                      >
+                    </span>
+                    <span *ngSwitchCase="customer.active">
+                      <span
+                        *ngIf="customer.active === true && col.key === 'active'"
+                        class="badge badge-sm bg-gradient-success"
+                        >Active</span
+                      >
+                    </span>
+                    <span *ngSwitchCase="customer.active">
+                      <span
+                        *ngIf="
+                          customer.active === false && col.key === 'active'
+                        "
+                        class="badge badge-sm bg-gradient-danger"
+                        >Inactive</span
+                      >
+                    </span>
+                  </p>
+                </td>
+                <td class="align-middle">
+                  <a
+                    [routerLink]="['/edit/customer/', customer.id]"
+                    href="javascript:;"
+                    class="btn btn-warning text-xs mb-0"
+                  >
+                    <i class="fa fa-pencil"></i>
+                    Edit
+                  </a>
+                </td>
+                <td class="align-middle">
+                  <a
+                    (click)="removeBill(customer)"
+                    class="btn btn-danger text-xs mb-0"
+                    href="javascript:;"
+                  >
+                    <i class="fa fa-trash"></i>
+                    Delete
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td class="align-middle text-center text-sm">
+                  All customers:<strong> {{ customerList.length }}</strong>
+                </td>
+                <td></td>
+                <td></td>
+                <td class="align-middle text-center text-sm">
+                  Active customers:
+                  <strong>{{ customerList | sum : "active" }}</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- loading screen -->
+<div *ngIf="customerList.length === 0" class="text-center">
+  <div class="spinner-border" style="width: 3rem; height: 3rem" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+<!-- /loading screen -->
+<div
+  *ngIf="customerList.length > 0"
+  class="d-flex justify-content-center col-12"
+>
+  <pagination-controls
+    (pageChange)="page = $event"
+    class="pagination"
+  ></pagination-controls>
+</div>

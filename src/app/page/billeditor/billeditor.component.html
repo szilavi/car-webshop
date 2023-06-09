@@ -1,0 +1,118 @@
+<div class="p-5 text-white rounded mt-2">
+  <h1 class="hotstitle text-center">Bill Editor</h1>
+  <div class="hr-theme-slash-2">
+    <div class="hr-line"></div>
+    <div class="hr-icon"><i class="fa fa-circle"></i></div>
+    <div class="hr-line"></div>
+  </div>
+
+  <div class="mt-4 p-5 rounded jumbotron">
+    <div class="col-6 mx-auto form-group">
+      <form
+        (ngSubmit)="onSubmit(bill)"
+        #billForm="ngForm"
+        *ngIf="bill$"
+        class="row g-3"
+      >
+        <div class="col-lg-1" *ngIf="bill.id !== 0">
+          <label for="id" class="form-label text-dark font-weight-bold formtext"
+            >Id</label
+          >
+          <input
+            disabled
+            [(ngModel)]="bill.id"
+            #id="ngModel"
+            name="id"
+            type="text"
+            class="form-control formtext"
+            id="id"
+          />
+        </div>
+        <div class="col-lg-11">
+          <label
+            for="order"
+            class="form-label text-dark font-weight-bold formtext"
+            >Order</label
+          >
+          <select
+            [(ngModel)]="bill.orderID"
+            #status="ngModel"
+            name="order"
+            id="order"
+            class="form-select formtext"
+            required
+          >
+            <option
+              *ngFor="let order of orders"
+              [ngValue]="order.id"
+              class="formtext"
+            >
+              {{ order.id }}
+            </option>
+          </select>
+        </div>
+        <div class="col-lg-6">
+          <label
+            for="amount"
+            class="form-label text-dark font-weight-bold formtext"
+            >Amount $</label
+          >
+          <input
+            [(ngModel)]="bill.amount"
+            #amount="ngModel"
+            name="amount"
+            type="text"
+            class="form-control formtext"
+            id="amount"
+            required
+          />
+          <div
+            [hidden]="amount.valid || amount.pristine || amount.disabled"
+            class="font-weight-bold text-danger"
+          >
+            How much?
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <label
+            for="status"
+            class="form-label text-dark font-weight-bold formtext"
+            >Bill status</label
+          >
+          <select
+            [(ngModel)]="bill.status"
+            #status="ngModel"
+            name="status"
+            id="status"
+            class="form-select formtext"
+          >
+            <option
+              *ngFor="let status of statusList"
+              [value]="status.key"
+              class="formtext"
+            >
+              {{ status.title }}
+            </option>
+          </select>
+        </div>
+        <div class="col-12 text-center">
+          <button
+            [disabled]="billForm.form.invalid"
+            (click)="onLoading()"
+            type="submit"
+            class="btn bg-gradient-dark"
+          >
+            {{ bill.id === 0 ? "Create new bill" : "Save changes" }}
+            <div
+              [hidden]="loading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+            >
+              <span class="sr-only">Loading...</span>
+            </div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
